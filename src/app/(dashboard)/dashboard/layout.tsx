@@ -31,10 +31,10 @@ const Layout = async ({ children }: LayoutProps) => {
   if (!session) notFound();
   const unseenRequestCount = (
     (await fetchRedis(
-      'smembers',
+      "smembers",
       `user:${session.user.id}:incoming_friend_requests`
     )) as User[]
-  ).length
+  ).length;
   return (
     <div className="w-full flex h-screen">
       <div className="md:flex h-full w-full max-w-xs grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6">
@@ -64,6 +64,12 @@ const Layout = async ({ children }: LayoutProps) => {
                 </li>
               );
             })}
+            <li>
+              <FriendRequestSidebarOptions
+                sessionId={session.user.id}
+                initialUnseenRequestCount={unseenRequestCount}
+              />
+            </li>
             <li className="-mx-6 mt-auto flex items-center">
               <div className="flex flex-1 items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-gray-900">
                 <div className="relative h-8 w-8 bg-gray-50">
@@ -83,14 +89,8 @@ const Layout = async ({ children }: LayoutProps) => {
                   </span>
                 </div>
               </div>
-              <SignOutButton className='h-full aspect-square' />
+              <SignOutButton className="h-full aspect-square" />
             </li>
-            <li>
-                  <FriendRequestSidebarOptions
-                    sessionId={session.user.id}
-                    initialUnseenRequestCount={unseenRequestCount}
-                  />
-                </li>
           </ul>
         </nav>
       </div>

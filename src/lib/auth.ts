@@ -2,10 +2,12 @@ import { NextAuthOptions } from "next-auth";
 import { UpstashRedisAdapter } from "@next-auth/upstash-redis-adapter";
 import { db } from "./db";
 import GoogleProvider from "next-auth/providers/google";
+import { fetchRedis } from "@/app/helpers/redis";
 
 function getGoogleCredentials() {
-  const clientId = '552592863552-79c4idnq4ur1530s1erq55bcgiljaauc.apps.googleusercontent.com';
-  const clientSecret = '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';
+  const clientId =
+    "552592863552-79c4idnq4ur1530s1erq55bcgiljaauc.apps.googleusercontent.com";
+  const clientSecret = "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";
   if (!clientId || clientId.length === 0) {
     throw new Error("Missing GOOGLE_CLIENT_ID");
   }
@@ -35,11 +37,16 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      const dbUser = (await db.get(`user:${token.id}`)) as User | null;
-      if (!dbUser) {
+      // const dbUser = (await db.get(`user:${token.id}`)) as User | null;
+      const dbUserResult = (await fetchRedis("get", `user:${token.id}`)) as
+        | string
+        | null;
+
+      if (!dbUserResult) {
         token.id = user!.id;
         return token;
       }
+      const dbUser = JSON.parse(dbUserResult) as User;
       return {
         id: dbUser.id,
         name: dbUser.name,
